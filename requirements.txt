@@ -15,4 +15,4 @@ langchain-groq
 langchain_openai
 langchain_tavily
 pyyaml
-googlemaps==4.10.3
+googlemaps==4.10.0
