@@ -10,8 +10,9 @@ streamlit
 httpx
 requests
 langchain_google_community
+langchain-google-community[places]
 langchain-groq
 langchain_openai
 langchain_tavily
-
--e .
+pyyaml
+googlemaps
