@@ -13,6 +13,7 @@ pip install -r requirements.txt
 uvicorn main:app --host 0.0.0.0 --port $PORT
 ```
 - Environment variables: add all provider keys from your local `.env` (do NOT commit `.env`). Use the names shown in `.env.sample`.
+  - `GROQ_MODEL` (recommended): `llama-3.3-70b-versatile`
 
 2) Frontend service (Streamlit)
 - Create a new Web Service in Render, connect to this repo.
