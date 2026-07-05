@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: travel-backend
+    env: python
+    plan: "deploy"
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+
+  - type: web
+    name: travel-frontend
+    env: python
+    plan: "deploy"
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run streamlit_app.py --server.address 0.0.0.0 --server.port $PORT --server.headless true --server.enableCORS false
