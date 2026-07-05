@@ -12,12 +12,25 @@ class CalculatorTool:
         """Convert tool inputs coming from the LLM into numeric values safely."""
         if isinstance(value, (int, float)):
             return float(value)
+        if isinstance(value, list):
+            raise TypeError("Expected a numeric value, got a list")
         if isinstance(value, str):
             cleaned = value.strip().replace(",", "")
             if cleaned.startswith("$"):
                 cleaned = cleaned[1:]
             return float(cleaned)
         raise TypeError(f"Expected a numeric value, got {type(value).__name__}")
+
+    @classmethod
+    def _flatten_costs(cls, costs):
+        """Flatten nested cost values and coerce each item to float."""
+        flattened = []
+        for cost in costs:
+            if isinstance(cost, list):
+                flattened.extend(cls._flatten_costs(cost))
+            else:
+                flattened.append(cls._to_float(cost))
+        return flattened
 
     def _setup_tools(self) -> List:
         """Setup all tools for the calculator tool"""
@@ -31,7 +44,7 @@ class CalculatorTool:
         @tool
         def calculate_total_expense(costs: list[float]) -> float:
             """Calculate total expense of the trip from a list of costs"""
-            numeric_costs = [self._to_float(cost) for cost in costs]
+            numeric_costs = self._flatten_costs(costs)
             return self.calculator.calculate_total(numeric_costs)
         
         @tool
