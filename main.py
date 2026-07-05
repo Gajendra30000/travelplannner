@@ -31,7 +31,7 @@ class QueryRequest(BaseModel):
     end_date: Optional[str] = None
     budget_range: Optional[str] = None
     trip_duration: Optional[int] = None
-    tavel_style: Optional[str] = None
+    travel_style: Optional[str] = None
 
 @app.post("/query")
 async def query_travel_agent(query: QueryRequest):
@@ -39,8 +39,23 @@ async def query_travel_agent(query: QueryRequest):
         Endpoint to handle queries to the travel agent.
     """
     try:
-        print(query)
-        graph = GraphBuilder(model_provider="groq")
+        # Map budget range text to prompt keys
+        budget_type = "medium"
+        if query.budget_range:
+            br = query.budget_range.lower()
+            if "budget" in br:
+                budget_type = "budget"
+            elif "luxury" in br:
+                budget_type = "luxury"
+
+        graph = GraphBuilder(
+            model_provider="groq",
+            start_date=query.start_date,
+            end_date=query.end_date,
+            budget_type=budget_type,
+            travel_style=query.travel_style or "mixed",
+            question=query.question
+        )
         react_app = graph()
     
         png_graph = react_app.get_graph().draw_mermaid_png()
@@ -60,7 +75,7 @@ async def query_travel_agent(query: QueryRequest):
             f"End Date: {query.end_date or 'Not specified'}\n"
             f"Budget: {query.budget_range or 'Not specified'}\n"
             f"Trip Duration: {query.trip_duration or 'Not specified'} days\n"
-            f"Travel Style: {query.tavel_style or 'Not specified'}"
+            f"Travel Style: {query.travel_style or 'Not specified'}"
         )
 
         # Send properly formatted message

@@ -214,24 +214,68 @@ with col1:
     
     # Date picker section
     st.markdown('<div class="date-container">', unsafe_allow_html=True)
+
+    today = datetime.date.today()
+    max_date = today + datetime.timedelta(days=365)
+    default_end_date = min(today + datetime.timedelta(days=7), max_date)
+
+    # Sanitize persisted session values so Streamlit date_input never receives
+    # an out-of-range default value when min/max constraints change over time.
+    start_state = st.session_state.get("start_date", today)
+    if isinstance(start_state, datetime.datetime):
+        start_state = start_state.date()
+    if not isinstance(start_state, datetime.date):
+        start_state = today
+    if start_state < today:
+        start_state = today
+    if start_state > max_date:
+        start_state = max_date
+    st.session_state["start_date"] = start_state
+
+    end_state = st.session_state.get("end_date", default_end_date)
+    if isinstance(end_state, datetime.datetime):
+        end_state = end_state.date()
+    if not isinstance(end_state, datetime.date):
+        end_state = default_end_date
+    if end_state < start_state:
+        end_state = min(start_state + datetime.timedelta(days=7), max_date)
+    if end_state > max_date:
+        end_state = max_date
+    if end_state < start_state:
+        end_state = start_state
+    st.session_state["end_date"] = end_state
     
     date_col1, date_col2 = st.columns(2)
     
     with date_col1:
         start_date = st.date_input(
             "📅 Departure Date",
-            datetime.date.today(),
-            min_value=datetime.date.today(),
-            max_value=datetime.date.today() + datetime.timedelta(days=365),
+            st.session_state["start_date"],
+            min_value=today,
+            max_value=max_date,
             key="start_date"
         )
+
+    # Re-sanitize end date after current run's start date selection.
+    end_state = st.session_state.get("end_date", default_end_date)
+    if isinstance(end_state, datetime.datetime):
+        end_state = end_state.date()
+    if not isinstance(end_state, datetime.date):
+        end_state = default_end_date
+    if end_state < start_date:
+        end_state = min(start_date + datetime.timedelta(days=7), max_date)
+    if end_state > max_date:
+        end_state = max_date
+    if end_state < start_date:
+        end_state = start_date
+    st.session_state["end_date"] = end_state
     
     with date_col2:
         end_date = st.date_input(
             "📅 Return Date",
-            datetime.date.today() + datetime.timedelta(days=7),
+            st.session_state["end_date"],
             min_value=start_date,
-            max_value=datetime.date.today() + datetime.timedelta(days=365),
+            max_value=max_date,
             key="end_date"
         )
     

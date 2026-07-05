@@ -35,14 +35,14 @@ class GooglePlacesSearchTool:
         return self.places_tool.run(f"what are the top 10 restaurants and eateries in and around {place}")
 
 
-    def google_search_activity(self, place: str) -> dict:
+    def google_search_activities(self, place: str) -> dict:
         """
         Searches for popular activities in the specified place using GooglePlaces API.
         """
         return self.places_tool.run(f"Activities in and around {place}")
     
 
-    def google_Search_transportation(self, place: str) -> dict:
+    def google_search_transportation(self, place: str) -> dict:
         """
         Searches for transportation options in the specified place using GooglePlaces API.
         """
@@ -85,7 +85,7 @@ class TavilySearchTool:
             return result["answer"]
         return result
     
-    def tavily_search_activity(self, place: str) -> dict:
+    def tavily_search_activities(self, place: str) -> dict:
         """
         Searches for popular activities in the specified place using Tavily Search API.
         """

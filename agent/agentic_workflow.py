@@ -11,19 +11,29 @@ from typing import Optional
 
 
 class GraphBuilder():
-    def __init__(self,model_provider:str = "groq"):
-        self.model_loader = ModelLoader(model_provider=model_provider)
-        self.llm = self.model_loader.load_llm()
-        self.tools = []
-
+    def __init__(
+        self,
+        model_provider: str = "groq",
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
         budget_type: Optional[str] = "medium",
         currency: Optional[str] = "USD",
-        travel_style: Optional[str] = "mixed"
+        travel_style: Optional[str] = "mixed",
         question: str = ""
+    ):
+        self.model_loader = ModelLoader(model_provider=model_provider)
+        self.llm = self.model_loader.load_llm()
+        self.tools = []
 
-        # self.weather_tool = WeatherInfoTool()
+        import os
+        weather_api_key = os.getenv("OPENWEATHERMAP_API_KEY")
+        if weather_api_key and weather_api_key != "your_api_key_here" and weather_api_key.strip():
+            self.weather_tool = WeatherInfoTool()
+            print("Weather API Key found. Weather forecast tool is enabled.")
+        else:
+            self.weather_tool = None
+            print("Weather API Key not configured. Weather forecast tool is disabled.")
+
         self.currency_tool = CurrencyConverterTool()
         self.expense_tool = CalculatorTool()
         self.place_search_tool = PlaceSearchTool()
@@ -45,8 +55,10 @@ class GraphBuilder():
             travel_style=self.travel_style
         )
 
+        if self.weather_tool:
+            self.tools.extend(self.weather_tool.weather_tool_list)
+
         self.tools.extend([
-            #* self.weather_tool.weather_tool_list
             * self.currency_tool.currency_converter_tool_list,
             * self.expense_tool.calculator_tool_list,
             * self.place_search_tool.place_search_tool_list
